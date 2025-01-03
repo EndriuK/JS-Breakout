@@ -14,9 +14,11 @@
 
         // derived dimensions
         const WIDTH = HEIGHT * 0.9;
+        const WALL = WIDTH / 50;
 
         // colours
         const COLOR_BACKGROUND = "black";
+        const COLOR_WALL = "grey";
 
         // set up the game canvas
         var canv = document.createElement("canvas");
@@ -26,6 +28,7 @@
 
         // set up the context
         var ctx = canv.getContext("2d");
+        ctx.lineWidth = WALL;
 
         // set up the game loop
         var timeDelta, timeLast;
@@ -44,6 +47,7 @@
 
             // draw the game
             drawBackground();
+            draWalls();
 
 
             // call the next loop
@@ -53,6 +57,18 @@
         function drawBackground() {
             ctx.fillStyle = COLOR_BACKGROUND;
             ctx.fillRect(0, 0, canv.width, canv.height);
+        }
+
+        function draWalls() {
+            let hwall = WALL * 0.5;
+            ctx.strokeStyle = COLOR_WALL;
+            ctx.beginPath();
+            ctx.moveTo(hwall, HEIGHT);
+            ctx.lineTo(hwall, hwall);
+            ctx.lineTo(WIDTH - hwall, hwall);
+            ctx.lineTo(WIDTH - hwall, HEIGHT);
+            ctx.stroke();
+
         }
 
     </script>
