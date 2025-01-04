@@ -11,6 +11,7 @@
     <script>
         // game parameters
         const HEIGHT = 550; // pixels
+        const PADDLE_SPD = 0.7; // fraction of the screen width per second
 
         // derived dimensions
         const WIDTH = HEIGHT * 0.9;
@@ -38,6 +39,10 @@
 
         // star a new game
         newGame();
+
+        // event listeners
+        document.addEventListener("keydown", keyDown);
+        document.addEventListener("keyup", keyUp);
 
         // set up the game loop
         var timeDelta, timeLast;
@@ -83,6 +88,10 @@
             ctx.lineTo(WIDTH - hwall, hwall);
             ctx.lineTo(WIDTH - hwall, HEIGHT);
             ctx.stroke();
+
+        }
+
+        function keyDown(ev) {
 
         }
 
