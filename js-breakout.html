@@ -139,6 +139,10 @@
             paddle = new Paddle();
         }
 
+        function updatePaddle(delta) {
+            paddle.x += paddle.xv * delta;
+        }
+
         function Paddle() {
             this.w = PADDLE_W;
             this.h = PADDLE_H;
