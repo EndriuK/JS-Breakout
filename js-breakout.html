@@ -141,6 +141,13 @@
 
         function updatePaddle(delta) {
             paddle.x += paddle.xv * delta;
+
+            // stop paddle at walls
+            if (paddle.x < WALL + paddle.w * 0.5) {
+                paddle.x = WALL + paddle.w * 0.5;
+            } else if (paddle.x > WIDTH - WALL - paddle.w * 0.5) {
+                paddle.x = WIDTH - WALL - paddle.w * 0.5;
+            }
         }
 
         function Paddle() {
