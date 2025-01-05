@@ -161,6 +161,12 @@
         }
 
         function serve() {
+
+            // ball already in motion
+            if (ball.yv != 0) {
+                return;
+            }
+
             // random angle, between 45 and 135 degrees
             let angle = Math.random() * Math.PI / 2 + Math.PI / 4;
             applyBallSpeed(angle);
@@ -169,6 +175,18 @@
         function updateBall(delta) {
             ball.x += ball.xv * delta;
             ball.y += ball.yv * delta;
+
+            // bounce the ball off the walls
+            if (ball.x < WALL + ball.w * 0.5) {
+                ball.x = WALL + ball.w * 0.5;
+                ball.xv = -ball.xv;
+            } else if (ball.x > canv.width - WALL - ball.w * 0.5) {
+                ball.x = canv.width - WALL - ball.w * 0.5;
+                ball.xv = -ball.xv;
+            } else if (ball.y < WALL + ball.h * 0.5) {
+                ball.y = WALL + ball.h * 0.5;
+                ball.yv = -ball.yv;
+            }
 
             // move the stationary ball with the paddle
             if (ball.yv === 0) {
