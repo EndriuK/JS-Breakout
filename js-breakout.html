@@ -13,6 +13,7 @@
         const HEIGHT = 550; // pixels
         const PADDLE_SPD = 0.7; // fraction of the screen width per second
         const BALL_SPD = 0.5; // starting ball speed as a fraction of the screen width per second
+        const BALL_SPIN = 0.2; // ball deflection off the paddle (0 = no spin, 1 = hight spin)
 
         // derived dimensions
         const WIDTH = HEIGHT * 0.9;
@@ -86,6 +87,15 @@
         }
 
         function applyBallSpeed(angle) {
+
+            // keep the angle between 30 and 150 degrees
+            if (angle < Math.PI / 6) {
+                angle = Math.PI / 6;
+            } else if (angle > Math.PI * 5 / 6) {
+                angle = Math.PI * 5 / 6;
+            }
+
+
             // update the x and y velocities of the ball
             ball.xv = ball.spd * Math.cos(angle);
             ball.yv = -ball.spd * Math.sin(angle);
@@ -160,6 +170,11 @@
             ball = new Ball();
         }
 
+        function outOfBounds() {
+            // TODO out of bounds
+            newGame();
+        }
+
         function serve() {
 
             // ball already in motion
@@ -196,6 +211,16 @@
             ) {
                 ball.y = paddle.y - paddle.h * 0.5 - ball.h * 0.5;
                 ball.yv = -ball.yv;
+
+                // modify the angle based off ball spin
+                let angle = Math.atan2(-ball.yv, ball.xv);
+                angle += (Math.random() * Math.PI / 2 - Math.PI / 4) * BALL_SPIN;
+                applyBallSpeed(angle);
+            }
+
+            // handle out of bounds
+            if (ball.y > canv.height) {
+                outOfBounds();
             }
 
             // move the stationary ball with the paddle
