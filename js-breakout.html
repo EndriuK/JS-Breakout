@@ -26,12 +26,6 @@
         const PADDLE_W = 0.1;  //paddle width as a fraction of a screen width
         const WALL = 0.02; // wall/ball/paddle size of as a fraction of the shortest screen dimensions
 
-        // derived dimensions
-        var height, width, walls;
-        height = window.innerHeight; // pixels
-        width = window.innerWidth;
-        wall = WALL * (height < width ? height : width);
-
 
         // colours
         const COLOR_BACKGROUND = "black";
@@ -48,15 +42,14 @@
         }
 
 
-        // set up the game canvas
+        // set up the game canvas and context 
         var canv = document.createElement("canvas");
-        canv.width = width;
-        canv.height = height;
         document.body.appendChild(canv);
-
-        // set up the context
         var ctx = canv.getContext("2d");
-        ctx.lineWidth = wall;
+
+        // dimensions
+        var height, width, walls;
+        setDimensions();
 
         // game variables
         var paddle, ball;
@@ -196,6 +189,15 @@
             // random angle, between 45 and 135 degrees
             let angle = Math.random() * Math.PI / 2 + Math.PI / 4;
             applyBallSpeed(angle);
+        }
+
+        function setDimensions() {
+            height = window.innerHeight;
+            width = window.innerWidth;
+            wall = WALL * (height < width ? height : width);
+            canv.width = width;
+            canv.height = height;
+            ctx.lineWidth = wall;
         }
 
         function updateBall(delta) {
