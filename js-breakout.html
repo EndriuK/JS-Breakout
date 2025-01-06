@@ -61,6 +61,7 @@
         // event listeners
         document.addEventListener("keydown", keyDown);
         document.addEventListener("keyup", keyUp);
+        window.addEventListener("resize", setDimensions);
 
         // set up the game loop
         var timeDelta, timeLast;
@@ -198,6 +199,8 @@
             canv.width = width;
             canv.height = height;
             ctx.lineWidth = wall;
+            paddle = new Paddle();
+            ball = new Ball();
         }
 
         function updateBall(delta) {
