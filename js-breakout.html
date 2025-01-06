@@ -59,6 +59,10 @@
         newGame();
 
         // event listeners
+        canv.addEventListener("touchcancel", touchCancel);
+        canv.addEventListener("touchend", touchEnd);
+        canv.addEventListener("touchMove", touchMove);
+        canv.addEventListener("touchstart", touchStart);
         document.addEventListener("keydown", keyDown);
         document.addEventListener("keyup", keyUp);
         window.addEventListener("resize", setDimensions);
@@ -184,12 +188,13 @@
 
             // ball already in motion
             if (ball.yv != 0) {
-                return;
+                return false;
             }
 
             // random angle, between 45 and 135 degrees
             let angle = Math.random() * Math.PI / 2 + Math.PI / 4;
             applyBallSpeed(angle);
+            return true;
         }
 
         function setDimensions() {
@@ -201,6 +206,35 @@
             ctx.lineWidth = wall;
             paddle = new Paddle();
             ball = new Ball();
+        }
+
+        function touch(x) {
+            if (!x) {
+                movePaddle(Direction.STOP);
+            } else if (x > paddle.x) {
+                movePaddle(Direction.RIGHT);
+            } else if (x < paddle.x) {
+                movePaddle(Direction.LEFT);
+            }
+        }
+
+        function touchCancel(ev) {
+            touch(null);
+        }
+
+        function touchEnd(ev) {
+            touch(null);
+        }
+
+        function touchMove(ev) {
+            touch(ev.touches[0].clientX);
+        }
+
+        function touchStart(ev) {
+            if (serve()) {
+                return;
+            }
+            touch(ev.touches[0].clientX);
         }
 
         function updateBall(delta) {
