@@ -5,22 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Breakout</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
     <script>
         // game parameters
-        const HEIGHT = 550; // pixels
         const PADDLE_SPD = 0.7; // fraction of the screen width per second
-        const BALL_SPD = 0.5; // starting ball speed as a fraction of the screen width per second
+        const BALL_SPD = 0.5; // starting ball speed as a fraction of the screen height per second
         const BALL_SPIN = 0.2; // ball deflection off the paddle (0 = no spin, 1 = hight spin)
+        const PADDLE_W = 0.1;  //paddle width as a fraction of a screen width
 
         // derived dimensions
-        const WIDTH = HEIGHT * 0.9;
-        const WALL = WIDTH / 50;
-        const PADDLE_H = WALL;
-        const BALL_SIZE = WALL;
-        const PADDLE_W = PADDLE_H * 5;
+        var height, width, walls;
+        height = window.innerHeight; // pixels
+        width = window.innerWidth;
+        wall = width / 50;
+
 
         // colours
         const COLOR_BACKGROUND = "black";
@@ -39,13 +49,13 @@
 
         // set up the game canvas
         var canv = document.createElement("canvas");
-        canv.width = WIDTH;
-        canv.height = HEIGHT;
+        canv.width = width;
+        canv.height = height;
         document.body.appendChild(canv);
 
         // set up the context
         var ctx = canv.getContext("2d");
-        ctx.lineWidth = WALL;
+        ctx.lineWidth = wall;
 
         // game variables
         var paddle, ball;
@@ -117,13 +127,13 @@
         }
 
         function draWalls() {
-            let hwall = WALL * 0.5;
+            let hwall = wall * 0.5;
             ctx.strokeStyle = COLOR_WALL;
             ctx.beginPath();
-            ctx.moveTo(hwall, HEIGHT);
+            ctx.moveTo(hwall, height);
             ctx.lineTo(hwall, hwall);
-            ctx.lineTo(WIDTH - hwall, hwall);
-            ctx.lineTo(WIDTH - hwall, HEIGHT);
+            ctx.lineTo(width - hwall, hwall);
+            ctx.lineTo(width - hwall, height);
             ctx.stroke();
 
         }
@@ -192,14 +202,14 @@
             ball.y += ball.yv * delta;
 
             // bounce the ball off the walls
-            if (ball.x < WALL + ball.w * 0.5) {
-                ball.x = WALL + ball.w * 0.5;
+            if (ball.x < wall + ball.w * 0.5) {
+                ball.x = wall + ball.w * 0.5;
                 ball.xv = -ball.xv;
-            } else if (ball.x > canv.width - WALL - ball.w * 0.5) {
-                ball.x = canv.width - WALL - ball.w * 0.5;
+            } else if (ball.x > canv.width - wall - ball.w * 0.5) {
+                ball.x = canv.width - wall - ball.w * 0.5;
                 ball.xv = -ball.xv;
-            } else if (ball.y < WALL + ball.h * 0.5) {
-                ball.y = WALL + ball.h * 0.5;
+            } else if (ball.y < wall + ball.h * 0.5) {
+                ball.y = wall + ball.h * 0.5;
                 ball.yv = -ball.yv;
             }
 
@@ -233,30 +243,30 @@
             paddle.x += paddle.xv * delta;
 
             // stop paddle at walls
-            if (paddle.x < WALL + paddle.w * 0.5) {
-                paddle.x = WALL + paddle.w * 0.5;
-            } else if (paddle.x > WIDTH - WALL - paddle.w * 0.5) {
-                paddle.x = WIDTH - WALL - paddle.w * 0.5;
+            if (paddle.x < wall + paddle.w * 0.5) {
+                paddle.x = wall + paddle.w * 0.5;
+            } else if (paddle.x > width - wall - paddle.w * 0.5) {
+                paddle.x = width - wall - paddle.w * 0.5;
             }
         }
 
         function Ball() {
-            this.w = BALL_SIZE;
-            this.h = BALL_SIZE;
+            this.w = wall;
+            this.h = wall;
             this.x = paddle.x;
             this.y = paddle.y - paddle.h / 2 - this.h / 2;
-            this.spd = BALL_SPD * WIDTH;
+            this.spd = BALL_SPD * height;
             this.xv = 0;
             this.yv = 0;
         }
 
         function Paddle() {
-            this.w = PADDLE_W;
-            this.h = PADDLE_H;
+            this.w = PADDLE_W * width;
+            this.h = wall;
             this.x = canv.width / 2;
             this.y = canv.height - this.h * 3;
             this.xv = 0;
-            this.spd = PADDLE_SPD * WIDTH;
+            this.spd = PADDLE_SPD * width;
         }
 
     </script>
