@@ -24,12 +24,13 @@
         const BALL_SPD = 0.5; // starting ball speed as a fraction of the screen height per second
         const BALL_SPIN = 0.2; // ball deflection off the paddle (0 = no spin, 1 = hight spin)
         const PADDLE_W = 0.1;  //paddle width as a fraction of a screen width
+        const WALL = 0.02; // wall/ball/paddle size of as a fraction of the shortest screen dimensions
 
         // derived dimensions
         var height, width, walls;
         height = window.innerHeight; // pixels
         width = window.innerWidth;
-        wall = width / 50;
+        wall = WALL * (height < width ? height : width);
 
 
         // colours
