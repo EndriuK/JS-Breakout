@@ -133,10 +133,12 @@
             bricks = [];
             let cols = BRICK_COLS;
             let rows = BRICK_ROWS + level * 2;
-            let color, left, top;
+            let color, left, top, rank, rankHigh;
+            rankHigh = rows * 0.5 - 1;
             for (let i = 0; i < rows; i++) {
                 bricks[i] = [];
-                color = "white";
+                rank = Math.floor(i * 0.5);
+                color = getBrickColor(rank, rankHigh);
                 top = wall + (MARGIN + i) * rowH;
                 for (let j = 0; j < cols; j++) {
                     left = wall + gap + j * colW;
@@ -180,6 +182,29 @@
             ctx.lineTo(width - hwall, height);
             ctx.stroke();
 
+        }
+
+        // red = 0, orange = 0.33, yellow = 0.67, green = 1
+        function getBrickColor(rank, highestRank) {
+            let fraction = rank / highestRank;
+            let r, g, b = 0;
+
+            // red to orange to yellow (increase green)
+            if (fraction <= 0.67) {
+                r = 255;
+                g = 255;
+                g = 255 * fraction / 0.67;
+            }
+
+            // yellow to green (redue red)
+            else {
+                r = 255 * (1 - fraction) / 0.33;
+                g = 255;
+
+            }
+
+            // return rgb colour string
+            return "rgb(" + r + ", " + g + ", " + b + ")";
         }
 
         function keyDown(ev) {
