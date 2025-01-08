@@ -52,21 +52,18 @@
         document.body.appendChild(canv);
         var ctx = canv.getContext("2d");
 
+        // game variables
+        var paddle, bricks = [], level, ball, touchX;
+
         // dimensions
         var height, width, walls;
         setDimensions();
 
-        // game variables
-        var paddle, ball, touchX;
-
-
-        // star a new game
-        newGame();
 
         // event listeners
         canv.addEventListener("touchcancel", touchCancel);
         canv.addEventListener("touchend", touchEnd);
-        canv.addEventListener("touchMove", touchMove);
+        canv.addEventListener("touchmove", touchMove);
         canv.addEventListener("touchstart", touchStart);
         document.addEventListener("keydown", keyDown);
         document.addEventListener("keyup", keyUp);
@@ -89,11 +86,12 @@
             updatePaddle(timeDelta);
             updateBall(timeDelta);
 
-            // draw the game
+            // draw
             drawBackground();
-            draWalls();
+            drawWalls();
             drawPaddle();
             drawBall();
+            drawBricks();
 
 
             // call the next loop
@@ -115,6 +113,39 @@
             ball.yv = -ball.spd * Math.sin(angle);
         }
 
+        function createBricks() {
+
+            // row dimension
+            let minY = wall;
+            let maxY = ball.y - ball.h * 3.5;
+            let totalSpaceY = maxY - minY;
+            let totalRows = MARGIN + BRICK_ROWS + MAX_LEVEL * 2;
+            let rowH = totalSpaceY / totalRows;
+            let gap = wall * BRICK_GAP;
+            let h = rowH - gap;
+
+            // column dimensions
+            let totalSpaceX = width - wall * 2;
+            let colW = (totalSpaceX - gap) / BRICK_COLS;
+            let w = colW - gap;
+
+            // populate the brick array
+            bricks = [];
+            let cols = BRICK_COLS;
+            let rows = BRICK_ROWS + level * 2;
+            let color, left, top;
+            for (let i = 0; i < rows; i++) {
+                bricks[i] = [];
+                color = "white";
+                top = wall + (MARGIN + i) * rowH;
+                for (let j = 0; j < cols; j++) {
+                    left = wall + gap + j * colW;
+                    bricks[i][j] = new Brick(left, top, w, h, color);
+                }
+            }
+
+        }
+
         function drawBackground() {
             ctx.fillStyle = COLOR_BACKGROUND;
             ctx.fillRect(0, 0, canv.width, canv.height);
@@ -125,12 +156,21 @@
             ctx.fillRect(ball.x - ball.w * 0.5, ball.y - ball.h * 0.5, ball.w, ball.h);
         }
 
+        function drawBricks() {
+            for (let row of bricks) {
+                for (let brick of row) {
+                    ctx.fillStyle = brick.color;
+                    ctx.fillRect(brick.left, brick.top, brick.w, brick.h);
+                }
+            }
+        }
+
         function drawPaddle() {
             ctx.fillStyle = COLOR_PADDLE;
             ctx.fillRect(paddle.x - paddle.w * 0.5, paddle.y - paddle.h * 0.5, paddle.w, paddle.h);
         }
 
-        function draWalls() {
+        function drawWalls() {
             let hwall = wall * 0.5;
             ctx.strokeStyle = COLOR_WALL;
             ctx.beginPath();
@@ -183,6 +223,8 @@
             paddle = new Paddle();
             ball = new Ball();
             touchX = null;
+            level = 0;
+            createBricks();
         }
 
         function outOfBounds() {
@@ -210,8 +252,7 @@
             canv.width = width;
             canv.height = height;
             ctx.lineWidth = wall;
-            paddle = new Paddle();
-            ball = new Ball();
+            newGame();
         }
 
 
@@ -282,7 +323,7 @@
         function updatePaddle(delta) {
 
             //handle touch
-            if (touch != null) {
+            if (touchX != null) {
                 if (touchX > paddle.x + wall) {
                     movePaddle(Direction.RIGHT);
                 } else if (touchX < paddle.x - wall) {
@@ -312,6 +353,16 @@
             this.spd = BALL_SPD * height;
             this.xv = 0;
             this.yv = 0;
+        }
+
+        function Brick(left, top, w, h, color) {
+            this.w = w;
+            this.h = h;
+            this.bot = top + h;
+            this.left = left;
+            this.right = left + w;
+            this.top = top;
+            this.color = color;
         }
 
         function Paddle() {
