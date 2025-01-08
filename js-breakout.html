@@ -25,6 +25,8 @@
         const BALL_SPIN = 0.2; // ball deflection off the paddle (0 = no spin, 1 = hight spin)
         const PADDLE_W = 0.1;  //paddle width as a fraction of a screen width
         const WALL = 0.02; // wall/ball/paddle size of as a fraction of the shortest screen dimensions
+        const BRICK_ROWS = 8; // starting number of brick rows
+        const BRICK_COLS = 14; // starting number of brick rows
 
 
         // colours
@@ -52,7 +54,7 @@
         setDimensions();
 
         // game variables
-        var paddle, ball;
+        var paddle, ball, touchX;
 
 
         // star a new game
@@ -177,6 +179,7 @@
         function newGame() {
             paddle = new Paddle();
             ball = new Ball();
+            touchX = null;
         }
 
         function outOfBounds() {
@@ -208,33 +211,27 @@
             ball = new Ball();
         }
 
-        function touch(x) {
-            if (!x) {
-                movePaddle(Direction.STOP);
-            } else if (x > paddle.x) {
-                movePaddle(Direction.RIGHT);
-            } else if (x < paddle.x) {
-                movePaddle(Direction.LEFT);
-            }
-        }
+
 
         function touchCancel(ev) {
-            touch(null);
+            touchX = null;
+            movePaddle(Direction.STOP);
         }
 
         function touchEnd(ev) {
-            touch(null);
+            touchX = null;
+            movePaddle(Direction.STOP);
         }
 
         function touchMove(ev) {
-            touch(ev.touches[0].clientX);
+            touchX = ev.touches[0].clientX;
         }
 
         function touchStart(ev) {
             if (serve()) {
                 return;
             }
-            touch(ev.touches[0].clientX);
+            touchX = ev.touches[0].clientX;
         }
 
         function updateBall(delta) {
@@ -280,6 +277,20 @@
         }
 
         function updatePaddle(delta) {
+
+            //handle touch
+            if (touch != null) {
+                if (touchX > paddle.x + wall) {
+                    movePaddle(Direction.RIGHT);
+                } else if (touchX < paddle.x - wall) {
+                    movePaddle(Direction.LEFT);
+                } else {
+                    movePaddle(Direction.STOP);
+                }
+            }
+
+
+            // move the paddle
             paddle.x += paddle.xv * delta;
 
             // stop paddle at walls
