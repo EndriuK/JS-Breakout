@@ -85,6 +85,7 @@
             // update
             updatePaddle(timeDelta);
             updateBall(timeDelta);
+            updateBricks(timeDelta);
 
             // draw
             drawBackground();
@@ -161,6 +162,9 @@
         function drawBricks() {
             for (let row of bricks) {
                 for (let brick of row) {
+                    if (brick == null) {
+                        continue;
+                    }
                     ctx.fillStyle = brick.color;
                     ctx.fillRect(brick.left, brick.top, brick.w, brick.h);
                 }
@@ -303,6 +307,21 @@
             touchX = ev.touches[0].clientX;
         }
 
+        function updateBricks(delta) {
+
+            // check for ball collision
+            OUTER: for (let i = 0; i < bricks.length; i++) {
+                for (let j = 0; j < BRICK_COLS; j++) {
+                    if (bricks[i][j] != null && bricks[i][j].intersect(ball)) {
+                        bricks[i][j] = null;
+                        ball.yv = -ball.yv;
+                        // TODO score etc.
+                        break OUTER;
+                    }
+                }
+            }
+        }
+
         function updateBall(delta) {
             ball.x += ball.xv * delta;
             ball.y += ball.yv * delta;
@@ -388,6 +407,17 @@
             this.right = left + w;
             this.top = top;
             this.color = color;
+
+            this.intersect = function (ball) {
+                let bBot = ball.y + ball.h * 0.5;
+                let bLeft = ball.x - ball.w * 0.5;
+                let bRight = ball.x + ball.w * 0.5;
+                let bTop = ball.y - ball.h * 0.5;
+                return this.left < bRight
+                    && this.right > bLeft
+                    && this.bot > bTop
+                    && bBot > this.top;
+            }
         }
 
         function Paddle() {
