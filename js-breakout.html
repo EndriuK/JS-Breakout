@@ -30,6 +30,10 @@
         const BRICK_GAP = 0.3; // brick gap as a fraction of wall width
         const MARGIN = 6; // number of empty rows above the bricks
         const MAX_LEVEL = 10; // maximum game level (+2 rows of bricks per level)
+        const MIN_BOUNCE_ANGLE = 30; // minimum bounce angle from the horizontal in degrees
+        const GAME_LIVES = 3; // starting number of game lives
+        const KEY_SCORE = "highscore"; // save key for local storage of high score
+
 
 
         // colours
@@ -99,17 +103,9 @@
             requestAnimationFrame(loop);
         }
 
+
+        // update the x and y velocities of the ball
         function applyBallSpeed(angle) {
-
-            // keep the angle between 30 and 150 degrees
-            if (angle < Math.PI / 6) {
-                angle = Math.PI / 6;
-            } else if (angle > Math.PI * 5 / 6) {
-                angle = Math.PI * 5 / 6;
-            }
-
-
-            // update the x and y velocities of the ball
             ball.xv = ball.spd * Math.cos(angle);
             ball.yv = -ball.spd * Math.sin(angle);
         }
@@ -284,7 +280,28 @@
             newGame();
         }
 
+        function spinBall() {
+            let upwards = ball.yv < 0;
+            let angle = Math.atan2(-ball.yv, ball.xv);
+            angle += (Math.random() * Math.PI / 2 - Math.PI / 4) * BALL_SPIN;
 
+            // minimum bounce angle 
+            let minBounceAngle = MIN_BOUNCE_ANGLE / 180 * Math.PI; // radians
+            if (upwards) {
+                if (angle < minBounceAngle) {
+                    angle = minBounceAngle;
+                } else if (angle > Math.PI - minBounceAngle) {
+                    angle = Math.PI - minBounceAngle;
+                }
+            } else {
+                if (angle > -minBounceAngle) {
+                    angle = -minBounceAngle;
+                } else if (angle < -Math.PI + minBounceAngle) {
+                    angle = -Math.PI + minBounceAngle;
+                }
+            }
+            applyBallSpeed(angle);
+        }
 
         function touchCancel(ev) {
             touchX = null;
@@ -315,6 +332,7 @@
                     if (bricks[i][j] != null && bricks[i][j].intersect(ball)) {
                         bricks[i][j] = null;
                         ball.yv = -ball.yv;
+                        spinBall();
                         // TODO score etc.
                         break OUTER;
                     }
@@ -330,12 +348,15 @@
             if (ball.x < wall + ball.w * 0.5) {
                 ball.x = wall + ball.w * 0.5;
                 ball.xv = -ball.xv;
+                spinBall();
             } else if (ball.x > canv.width - wall - ball.w * 0.5) {
                 ball.x = canv.width - wall - ball.w * 0.5;
                 ball.xv = -ball.xv;
+                spinBall();
             } else if (ball.y < wall + ball.h * 0.5) {
                 ball.y = wall + ball.h * 0.5;
                 ball.yv = -ball.yv;
+                spinBall();
             }
 
             // bounce off the paddle
@@ -346,11 +367,7 @@
             ) {
                 ball.y = paddle.y - paddle.h * 0.5 - ball.h * 0.5;
                 ball.yv = -ball.yv;
-
-                // modify the angle based off ball spin
-                let angle = Math.atan2(-ball.yv, ball.xv);
-                angle += (Math.random() * Math.PI / 2 - Math.PI / 4) * BALL_SPIN;
-                applyBallSpeed(angle);
+                spinBall();
             }
 
             // handle out of bounds
